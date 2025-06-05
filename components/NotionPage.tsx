@@ -128,10 +128,17 @@ const propertyDateValue = (
   defaultFn: () => React.ReactNode
 ) => {
   if (pageHeader && schema?.name?.toLowerCase() === 'published') {
-    // Handle both direct date properties and formula properties that return dates
-    const publishDate = schema.type === 'formula'
-      ? data?.[0]?.[1]?.[0]?.[1]?.formula?.date?.start_date // Formula date path
-      : data?.[0]?.[1]?.[0]?.[1]?.start_date // Direct date path
+    let publishDate
+
+    if (schema.type === 'formula') {
+      const formulaValue = data?.[0]?.[1]?.[0]?.[1]?.formula
+      // Check different possible formula result formats
+      publishDate = formulaValue?.start_date || // If formula returns a date directly
+                   formulaValue?.date?.start_date || // If formula returns a date object
+                   (formulaValue?.type === 'date' && formulaValue?.value) // If formula has type and value
+    } else {
+      publishDate = data?.[0]?.[1]?.[0]?.[1]?.start_date // Direct date path
+    }
 
     if (publishDate) {
       return `${formatDate(publishDate, {
