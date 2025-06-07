@@ -17,7 +17,6 @@ import {
   navigationStyle
 } from './config'
 import { getTweetsMap } from './get-tweets'
-import { mapImageUrl } from './map-image-url'
 import { notion } from './notion-api'
 import { getPreviewImageMap } from './preview-images'
 
@@ -105,10 +104,12 @@ async function replaceDeadImageLinks(recordMap: ExtendedRecordMap): Promise<Exte
           return // No source URL to check
         }
 
-        // Use mapImageUrl to get the URL that would be rendered
-        const imageUrlToCheck = originalSource
+        // Use the originalSource directly, or mapImageUrl if complex mapping is needed in the future.
+        // For now, direct check of originalSource (after Notion's potential signing) is sufficient
+        // as mapImageUrl in this project primarily handles defaultPageCover/Icon or passes to notion-utils.
+        const imageUrlToCheck = originalSource // Simpler: check the source URL from Notion
         if (!imageUrlToCheck) {
-          return // mapImageUrl couldn't resolve it
+          return // No source URL to check
         }
 
         try {
