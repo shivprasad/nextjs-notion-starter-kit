@@ -21,6 +21,16 @@
       "name": "Next.js App",
       "skipFiles": ["<node_internals>/**"],
       "port": 9229
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Debug in Chrome",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "webpack://_N_E/*": "${webRoot}/*"
+      }
     }
   ]
 }
