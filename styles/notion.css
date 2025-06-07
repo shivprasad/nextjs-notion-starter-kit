@@ -403,3 +403,10 @@
 .notion-equation.notion-equation-block{
   align-items: center;
 }
+
+/* Override hero icon positioning to be left-aligned */
+.notion-page-icon-hero {
+  left: 0 !important;
+  margin-left: 0 !important;
+  justify-content: flex-start !important;
+}
