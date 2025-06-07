@@ -14,6 +14,8 @@ export default withBundleAnalyzer({
       { protocol: 'https', hostname: 'notion.so' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'abs.twimg.com' },
+      { protocol: 'https', hostname: 'byteco.de' },
+      { protocol: 'https', hostname: 'www.byteco.de' },
       { protocol: 'https', hostname: 'pbs.twimg.com' },
       { protocol: 'https', hostname: 's3.us-west-2.amazonaws.com' }
     ],
