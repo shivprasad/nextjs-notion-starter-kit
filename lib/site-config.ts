@@ -20,6 +20,7 @@ export interface SiteConfig {
 
   defaultPageIcon?: string | null
   defaultPageCover?: string | null
+  defaultFallbackImage?: string | null
   defaultPageCoverPosition?: number | null
 
   isPreviewImageSupportEnabled?: boolean

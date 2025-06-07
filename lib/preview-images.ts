@@ -9,7 +9,7 @@ import { getPageImageUrls, normalizeUrl } from 'notion-utils'
 import pMap from 'p-map'
 import pMemoize from 'p-memoize'
 
-import { defaultPageCover, defaultPageIcon } from './config'
+import { defaultFallbackImage, defaultPageCover, defaultPageIcon } from './config'
 import { db } from './db'
 import { mapImageUrl } from './map-image-url'
 
@@ -19,7 +19,7 @@ export async function getPreviewImageMap(
   const urls: string[] = getPageImageUrls(recordMap, {
     mapImageUrl
   })
-    .concat([defaultPageIcon, defaultPageCover])
+    .concat([defaultPageIcon, defaultPageCover, defaultFallbackImage]) // Used defaultFallbackImage
     .filter(Boolean)
 
   const previewImagesMap = Object.fromEntries(

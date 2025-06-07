@@ -4,7 +4,7 @@ import Image from 'next/legacy/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { type PageBlock } from 'notion-types'
-import { formatDate, getBlockTitle, getPageProperty } from 'notion-utils'
+import { formatDate, getBlockTitle, getPageProperty, normalizeUrl } from 'notion-utils'
 import * as React from 'react'
 import BodyClassName from 'react-body-classname'
 import {
@@ -16,7 +16,7 @@ import { EmbeddedTweet, TweetNotFound, TweetSkeleton } from 'react-tweet'
 import { useSearchParam } from 'react-use'
 
 import type * as types from '@/lib/types'
-import * as config from '@/lib/config'
+import * as config from '@/lib/config' // Already imports config
 import { mapImageUrl } from '@/lib/map-image-url'
 import { getCanonicalPageUrl, mapPageUrl } from '@/lib/map-page-url'
 import { searchNotion } from '@/lib/search-notion'
@@ -235,6 +235,28 @@ export function NotionPage({
     g.recordMap = recordMap
     g.block = block
   }
+
+  // BEGIN FALLBACK IMAGE LOGIC
+  if (recordMap?.preview_images && config.defaultFallbackImage) {
+    const fallbackPreview = recordMap.preview_images[normalizeUrl(config.defaultFallbackImage)];
+
+    if (fallbackPreview) {
+      for (const key in recordMap.preview_images) {
+        if (Object.prototype.hasOwnProperty.call(recordMap.preview_images, key)) {
+          if (recordMap.preview_images[key] === null) {
+            recordMap.preview_images[key] = fallbackPreview;
+          }
+        }
+      }
+    } else {
+      // Optional: Log a warning if the fallback /404.png itself couldn't be processed
+      // This might happen if /404.png is missing or unprocessable
+      console.warn(
+        `NotionPage: Fallback preview image for ${config.defaultFallbackImage} could not be loaded from recordMap.preview_images.`
+      )
+    }
+  }
+  // END FALLBACK IMAGE LOGIC
 
   const canonicalPageUrl =
     !config.isDev && getCanonicalPageUrl(site, recordMap)(pageId)
