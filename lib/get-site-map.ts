@@ -28,10 +28,30 @@ const getAllPages = pMemoize(getAllPagesImpl, {
 const getPage = async (pageId: string, ...args) => {
   console.log('\nnotion getPage', uuidToId(pageId))
 
-  // Add a small delay to prevent rate limiting
-  await new Promise(resolve => setTimeout(resolve, 200))
+  // Add a longer delay to prevent rate limiting
+  await new Promise(resolve => setTimeout(resolve, 1000))
 
-  return notion.getPage(pageId, ...args)
+  // Retry logic for 429 errors
+  let retries = 3
+  while (retries > 0) {
+    try {
+      return await notion.getPage(pageId, ...args)
+    } catch (err: any) {
+      const is429Error = err.message?.includes('429') ||
+                         err.message?.includes('Too Many Requests') ||
+                         err.status === 429
+
+      if (is429Error && retries > 1) {
+        const delay = Math.pow(2, 4 - retries) * 2000 // 2s, 4s, 8s
+        console.warn(`Rate limited for page ${uuidToId(pageId)}, retrying in ${delay}ms... (${retries - 1} retries left)`)
+        await new Promise(resolve => setTimeout(resolve, delay))
+        retries--
+        continue
+      }
+
+      throw err
+    }
+  }
 }
 
 async function getAllPagesImpl(

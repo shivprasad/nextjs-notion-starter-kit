@@ -47,7 +47,30 @@ const getNavigationLinkPages = pMemoize(
 )
 
 export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
-  let recordMap = await notion.getPage(pageId)
+  // Retry logic for 429 errors
+  let retries = 3
+  let recordMap: ExtendedRecordMap
+
+  while (retries > 0) {
+    try {
+      recordMap = await notion.getPage(pageId)
+      break
+    } catch (err: any) {
+      const is429Error = err.message?.includes('429') ||
+                         err.message?.includes('Too Many Requests') ||
+                         err.status === 429
+
+      if (is429Error && retries > 1) {
+        const delay = Math.pow(2, 4 - retries) * 2000 // 2s, 4s, 8s
+        console.warn(`Rate limited for page ${pageId}, retrying in ${delay}ms... (${retries - 1} retries left)`)
+        await new Promise(resolve => setTimeout(resolve, delay))
+        retries--
+        continue
+      }
+
+      throw err
+    }
+  }
 
   // Replace dead image links before other processing
   recordMap = await replaceDeadImageLinks(recordMap)
