@@ -26,9 +26,9 @@ export default siteConfig({
 
   // default notion icon and cover images for site-wide consistency (optional)
   // page-specific values will override these site-wide defaults
-  defaultPageIcon: "https://byteco.de/page-icon.png",
-  defaultPageCover: "https://byteco.de/page-cover.png",
-  defaultFallbackImage: "https://byteco.de/404.png",
+  //defaultPageIcon: "https://byteco.de/page-icon.png",
+  //defaultPageCover: "https://byteco.de/page-cover.png",
+  //defaultFallbackImage: "https://byteco.de/404.png",
   defaultPageCoverPosition: 0.5,
 
   // whether or not to enable support for LQIP preview images (optional)
