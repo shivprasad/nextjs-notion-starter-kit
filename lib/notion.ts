@@ -37,7 +37,7 @@ const getNavigationLinkPages = pMemoize(
             signFileUrls: false
           }),
         {
-          concurrency: 4
+          concurrency: 1
         }
       )
     }
@@ -129,7 +129,7 @@ async function replaceDeadImageLinks(recordMap: ExtendedRecordMap): Promise<Exte
         }
       }
     },
-    { concurrency: 4 } // Process 4 blocks concurrently
+    { concurrency: 1 } // Process 1 block at a time to avoid rate limiting
   )
 
   return recordMap

@@ -30,7 +30,7 @@ export async function getPreviewImageMap(
         return [cacheKey, await getPreviewImage(url, { cacheKey })]
       },
       {
-        concurrency: 8
+        concurrency: 2
       }
     )
   )

@@ -27,6 +27,10 @@ const getAllPages = pMemoize(getAllPagesImpl, {
 
 const getPage = async (pageId: string, ...args) => {
   console.log('\nnotion getPage', uuidToId(pageId))
+
+  // Add a small delay to prevent rate limiting
+  await new Promise(resolve => setTimeout(resolve, 200))
+
   return notion.getPage(pageId, ...args)
 }
 
