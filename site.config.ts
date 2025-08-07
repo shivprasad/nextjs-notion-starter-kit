@@ -9,9 +9,9 @@ export default siteConfig({
   rootNotionSpaceId: null,
 
   // basic site info (required)
-  name: 'Shivprasad Bade - Life is but a dream',
-  domain: 'bytecode-seven.vercel.app',
-  author: 'Shivprasad Bade',
+  name: 'Shiv Bade - Life is but a dream',
+  domain: 'byteco.de',
+  author: 'Shiv Bade',
 
   // open graph metadata (optional)
   description: "Welcome to 'Life is but a dream' - a blog where I share my journey as a developer. It's a mix of coding insights, personal experiences, and the little epiphanies that come with a life in tech. Whether you're deep in the world of development or just curious about it, join me in unraveling the simplicity and complexity of coding and how it shapes our digital world.",
@@ -26,13 +26,13 @@ export default siteConfig({
 
   // default notion icon and cover images for site-wide consistency (optional)
   // page-specific values will override these site-wide defaults
-  //defaultPageIcon: "https://byteco.de/page-icon.png",
-  //defaultPageCover: "https://byteco.de/page-cover.png",
-  //defaultFallbackImage: "https://byteco.de/404.png",
+  defaultPageIcon: "https://byteco.de/page-icon.png",
+  defaultPageCover: "https://byteco.de/page-cover.png",
+  defaultFallbackImage: "https://byteco.de/404.png",
   defaultPageCoverPosition: 0.5,
 
   // whether or not to enable support for LQIP preview images (optional)
-  isPreviewImageSupportEnabled: false,
+  isPreviewImageSupportEnabled: true,
 
   // whether or not redis is enabled for caching generated preview images (optional)
   // NOTE: if you enable redis, you need to set the `REDIS_HOST` and `REDIS_PASSWORD`
