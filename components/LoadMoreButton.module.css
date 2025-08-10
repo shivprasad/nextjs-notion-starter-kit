@@ -1,0 +1,71 @@
+.loadMoreContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+  padding: 1rem;
+}
+
+.loadMoreButton {
+  background: var(--notion-blue);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadMoreButton:hover:not(:disabled) {
+  background: var(--notion-blue-hover, #0066cc);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.loadMoreButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 102, 204, 0.2);
+}
+
+.loadMoreButton:disabled {
+  background: var(--notion-gray);
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Dark mode support */
+.dark-mode .loadMoreButton {
+  background: var(--notion-blue-dark, #0066cc);
+  color: var(--notion-white);
+}
+
+.dark-mode .loadMoreButton:hover:not(:disabled) {
+  background: var(--notion-blue-hover-dark, #0080ff);
+}
+
+.dark-mode .loadMoreButton:disabled {
+  background: var(--notion-gray-dark, #37352f);
+  color: var(--notion-gray-light, #9b9a97);
+}
+
+/* Fallback colors if CSS variables are not available */
+.loadMoreButton {
+  background: #0066cc;
+}
+
+.loadMoreButton:hover:not(:disabled) {
+  background: #0052a3;
+}
+
+.loadMoreButton:disabled {
+  background: #e9e9e7;
+  color: #9b9a97;
+}

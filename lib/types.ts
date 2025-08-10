@@ -11,11 +11,20 @@ export interface PageError {
   statusCode: number
 }
 
+export interface PaginationMeta {
+  hasMore: boolean
+  nextCursor?: string | null
+  currentPage?: number
+  totalCount?: number
+}
+
 export interface PageProps {
   site?: Site
   recordMap?: ExtendedRecordMap
   pageId?: string
   error?: PageError
+  paginationMeta?: PaginationMeta
+  cursor?: string | null
 }
 
 export interface ExtendedTweetRecordMap extends ExtendedRecordMap {
@@ -38,6 +47,11 @@ export interface Site {
   fontFamily?: string
   darkMode?: boolean
   previewImages?: boolean
+
+  // pagination settings
+  enablePagination?: boolean
+  pageSize?: number
+  defaultPageAll?: boolean
 
   // opengraph metadata
   description?: string

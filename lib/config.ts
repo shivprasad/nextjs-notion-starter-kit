@@ -115,6 +115,11 @@ export const navigationLinks: Array<NavigationLink | null> = getSiteConfig(
 // Optional site search
 export const isSearchEnabled: boolean = getSiteConfig('isSearchEnabled', true)
 
+// Pagination settings
+export const enablePagination: boolean = getSiteConfig('enablePagination', false)
+export const pageSize: number = getSiteConfig('pageSize', 10)
+export const defaultPageAll: boolean = getSiteConfig('defaultPageAll', true)
+
 // ----------------------------------------------------------------------------
 
 // Optional redis instance for persisting preview images
@@ -160,7 +165,10 @@ export const site: Site = {
   name,
   rootNotionPageId,
   rootNotionSpaceId,
-  description
+  description,
+  enablePagination,
+  pageSize,
+  defaultPageAll
 }
 
 export const fathomId = isDev ? null : process.env.NEXT_PUBLIC_FATHOM_ID

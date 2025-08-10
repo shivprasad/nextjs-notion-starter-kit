@@ -34,6 +34,11 @@ export interface SiteConfig {
 
   navigationStyle?: types.NavigationStyle
   navigationLinks?: Array<NavigationLink>
+
+  // Pagination settings
+  enablePagination?: boolean
+  pageSize?: number
+  defaultPageAll?: boolean
 }
 
 export interface NavigationLink {

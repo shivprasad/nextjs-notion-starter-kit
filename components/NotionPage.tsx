@@ -24,6 +24,7 @@ import { useDarkMode } from '@/lib/use-dark-mode'
 
 import { Footer } from './Footer'
 import { Loading } from './Loading'
+import { LoadMoreButton } from './LoadMoreButton'
 import { NotionPageHeader } from './NotionPageHeader'
 import { Page404 } from './Page404'
 import { PageAside } from './PageAside'
@@ -154,7 +155,9 @@ export function NotionPage({
   site,
   recordMap,
   error,
-  pageId
+  pageId,
+  paginationMeta,
+  cursor: _cursor
 }: types.PageProps) {
   const router = useRouter()
   const lite = useSearchParam('lite')
@@ -208,7 +211,27 @@ export function NotionPage({
     [block, recordMap, isBlogPost]
   )
 
-  const footer = React.useMemo(() => <Footer />, [])
+  // Add LoadMoreButton to footer if pagination is enabled and there's more content
+  const loadMoreButton = React.useMemo(() => {
+    if (!site?.enablePagination || !paginationMeta?.hasMore) return null
+
+    return (
+      <LoadMoreButton
+        hasMore={paginationMeta.hasMore}
+        nextCursor={paginationMeta.nextCursor}
+        pageId={pageId}
+        // Note: For a complete implementation, you'd need to extract collectionId and collectionViewId
+        // from the recordMap. This is a simplified version.
+      />
+    )
+  }, [paginationMeta, pageId, site?.enablePagination])
+
+  const footer = React.useMemo(() => (
+    <>
+      {loadMoreButton}
+      <Footer />
+    </>
+  ), [loadMoreButton])
 
   if (router.isFallback) {
     return <Loading />

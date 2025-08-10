@@ -2,6 +2,7 @@ import { siteConfig } from './lib/site-config'
 
 export default siteConfig({
   // the site's root Notion page (required)
+  // rootNotionPageId: '24be45a722578104b74cfcf6c15842f4',
   rootNotionPageId: '209e45a72257808c926bffea669ad89f',
 
   // if you want to restrict pages to a single notion workspace (optional)
@@ -62,5 +63,10 @@ export default siteConfig({
       title: 'Contact',
       pageId: '209e45a722578114bec8fb960bea3ee1'
     }
-  ]
+  ],
+
+  // Pagination settings
+  enablePagination: true,
+  pageSize: 10,
+  defaultPageAll: false // Use pagination by default - set to true to load all records
 })

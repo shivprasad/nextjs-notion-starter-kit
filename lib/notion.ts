@@ -1,6 +1,7 @@
 // External libraries
 import ky from 'ky'
 import {
+  type CollectionInstance,
   type ExtendedRecordMap,
   type SearchParams,
   type SearchResults
@@ -19,6 +20,7 @@ import {
 import { getTweetsMap } from './get-tweets'
 import { notion } from './notion-api'
 import { getPreviewImageMap } from './preview-images'
+import type { PaginationMeta } from './types'
 
 const getNavigationLinkPages = pMemoize(
   async (): Promise<ExtendedRecordMap[]> => {
@@ -102,6 +104,164 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
 
 export async function search(params: SearchParams): Promise<SearchResults> {
   return notion.search(params)
+}
+
+// New function for paginated collection data
+export async function getCollectionDataPaginated(
+  collectionId: string,
+  collectionViewId: string,
+  collectionView: any,
+  options: {
+    limit?: number
+    cursor?: string
+    loadAll?: boolean
+  } = {}
+): Promise<{
+  data: CollectionInstance
+  hasMore: boolean
+  nextCursor?: string
+}> {
+  const { limit = 10, loadAll = false } = options
+
+  try {
+    const collectionData = await notion.getCollectionData(
+      collectionId,
+      collectionViewId,
+      collectionView,
+      {
+        limit: loadAll ? undefined : limit,
+        // Note: The notion-client may not support cursor-based pagination directly
+        // This is a simplified implementation that may need adjustment based on actual API capabilities
+      }
+    )
+
+    // For now, we'll simulate pagination logic
+    // In a real implementation, you'd need to work with the actual Notion API pagination
+    const hasMore = !loadAll && collectionData && Object.keys(collectionData.result?.blockIds || {}).length >= limit
+
+    return {
+      data: collectionData,
+      hasMore,
+      nextCursor: hasMore ? `cursor_${Date.now()}` : undefined
+    }
+  } catch (err) {
+    console.error('Error fetching paginated collection data:', err)
+    throw err
+  }
+}
+
+// Enhanced getPage function with pagination support
+export async function getPageWithPagination(
+  pageId: string,
+  paginationOptions?: {
+    cursor?: string
+    pageSize?: number
+    loadAll?: boolean
+  }
+): Promise<ExtendedRecordMap & { paginationMeta?: PaginationMeta }> {
+  const recordMap = await getPage(pageId)
+
+  // If no pagination options provided, return the standard record map
+  if (!paginationOptions) {
+    return recordMap
+  }
+
+  const { cursor, pageSize = 10, loadAll = false } = paginationOptions
+
+  // If loadAll is true, don't apply pagination
+  if (loadAll) {
+    const paginationMeta: PaginationMeta = {
+      hasMore: false,
+      nextCursor: null,
+      currentPage: 1
+    }
+    return { ...recordMap, paginationMeta }
+  }
+
+  // Apply pagination to collections in the recordMap
+  const paginatedRecordMap = { ...recordMap }
+  let hasMore = false
+  let nextCursor: string | undefined
+
+  // Find collection views and apply pagination
+  console.log('DEBUG: recordMap.collection_query exists:', !!recordMap.collection_query)
+  if (recordMap.collection_query) {
+    console.log('DEBUG: collection_query keys:', Object.keys(recordMap.collection_query))
+
+    for (const [collectionId, collectionQuery] of Object.entries(recordMap.collection_query)) {
+      console.log('DEBUG: Processing collection:', collectionId)
+      console.log('DEBUG: collectionQuery keys:', Object.keys(collectionQuery))
+
+      for (const [viewId, queryResult] of Object.entries(collectionQuery)) {
+        console.log('DEBUG: Processing view:', viewId)
+        console.log('DEBUG: queryResult:', queryResult)
+        console.log('DEBUG: collection_group_results type:', typeof queryResult?.collection_group_results)
+        console.log('DEBUG: collection_group_results is array:', Array.isArray(queryResult?.collection_group_results))
+
+        if (queryResult?.collection_group_results) {
+          const groupResult = queryResult.collection_group_results
+          console.log('DEBUG: Processing group result:', groupResult)
+
+          if (groupResult.blockIds) {
+            const startIndex = cursor ? Number.parseInt(cursor) : 0
+            const endIndex = startIndex + pageSize
+            const totalItems = groupResult.blockIds.length
+
+            console.log('DEBUG: Pagination info:', { startIndex, endIndex, totalItems, pageSize })
+
+            // Slice the blockIds for pagination
+            const paginatedBlockIds = groupResult.blockIds.slice(startIndex, endIndex)
+
+            // Update the collection query result
+            groupResult.blockIds = paginatedBlockIds
+            ;(groupResult as any).total = paginatedBlockIds.length
+
+            // Determine if there are more items
+            hasMore = endIndex < totalItems
+            nextCursor = hasMore ? endIndex.toString() : undefined
+
+            console.log('DEBUG: Pagination result:', { hasMore, nextCursor, paginatedCount: paginatedBlockIds.length })
+
+            // Keep all blocks except the collection items that are not in current page
+            if (recordMap.block) {
+              const blocksToRemove = new Set<string>()
+
+              // Find all collection item blocks that should be removed
+              for (const [blockId, blockData] of Object.entries(recordMap.block)) {
+                if (blockData.value?.parent_id &&
+                    blockData.value?.type !== 'page' &&
+                    !paginatedBlockIds.includes(blockId)) {
+                  // This is a collection item block not in current page
+                  const parentBlock = recordMap.block[blockData.value.parent_id]
+                  if (parentBlock?.value?.type === 'collection_view' ||
+                      parentBlock?.value?.type === 'collection_view_page') {
+                    blocksToRemove.add(blockId)
+                  }
+                }
+              }
+
+              // Create new block map without the removed blocks
+              const newBlockMap: any = {}
+              for (const [blockId, blockData] of Object.entries(recordMap.block)) {
+                if (!blocksToRemove.has(blockId)) {
+                  newBlockMap[blockId] = blockData
+                }
+              }
+              paginatedRecordMap.block = newBlockMap
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const paginationMeta: PaginationMeta = {
+    hasMore,
+    nextCursor: nextCursor || null,
+    currentPage: cursor ? Math.floor(Number.parseInt(cursor) / pageSize) + 1 : 1
+  }
+
+  return { ...paginatedRecordMap, paginationMeta }
 }
 
 async function replaceDeadImageLinks(recordMap: ExtendedRecordMap): Promise<ExtendedRecordMap> {

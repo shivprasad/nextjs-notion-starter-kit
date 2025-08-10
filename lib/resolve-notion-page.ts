@@ -5,9 +5,16 @@ import * as acl from './acl'
 import { environment, pageUrlAdditions, pageUrlOverrides, site } from './config'
 import { db } from './db'
 import { getSiteMap } from './get-site-map'
-import { getPage } from './notion'
+import { getPage, getPageWithPagination } from './notion'
 
-export async function resolveNotionPage(domain: string, rawPageId?: string) {
+export async function resolveNotionPage(
+  domain: string,
+  rawPageId?: string,
+  paginationOptions?: {
+    cursor?: string
+    loadAll?: boolean
+  }
+) {
   let pageId: string
   let recordMap: ExtendedRecordMap
 
@@ -82,8 +89,26 @@ export async function resolveNotionPage(domain: string, rawPageId?: string) {
   } else {
     pageId = site.rootNotionPageId
 
-    console.log(site)
-    recordMap = await getPage(pageId)
+    // Use pagination-aware function if pagination options are provided
+    if (paginationOptions && site.enablePagination) {
+      const paginatedResult = await getPageWithPagination(pageId, {
+        cursor: paginationOptions.cursor,
+        pageSize: site.pageSize || 10,
+        loadAll: paginationOptions.loadAll !== undefined ? paginationOptions.loadAll : (site.defaultPageAll ?? false)
+      })
+
+      recordMap = paginatedResult
+      const props = {
+        site,
+        recordMap: paginatedResult,
+        pageId,
+        paginationMeta: paginatedResult.paginationMeta,
+        cursor: paginationOptions.cursor || null
+      }
+      return { ...props, ...(await acl.pageAcl(props)) }
+    } else {
+      recordMap = await getPage(pageId)
+    }
   }
 
   const props = { site, recordMap, pageId }

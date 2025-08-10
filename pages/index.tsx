@@ -1,17 +1,24 @@
+import type { GetServerSideProps } from 'next'
+
 import { NotionPage } from '@/components/NotionPage'
 import { domain } from '@/lib/config'
 import { resolveNotionPage } from '@/lib/resolve-notion-page'
 
-export const getStaticProps = async () => {
-  try {
-    const props = await resolveNotionPage(domain)
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { cursor, loadAll } = context.query
 
-    return { props, revalidate: 10 }
+  try {
+    // Always pass pagination options to enable pagination by default
+    const paginationOptions = {
+      cursor: cursor as string,
+      loadAll: loadAll === 'true'
+    }
+
+    const props = await resolveNotionPage(domain, undefined, paginationOptions)
+
+    return { props }
   } catch (err) {
     console.error('page error', domain, err)
-
-    // we don't want to publish the error version of this page, so
-    // let next.js know explicitly that incremental SSG failed
     throw err
   }
 }
