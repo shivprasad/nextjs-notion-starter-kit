@@ -10,6 +10,7 @@ import { mergeRecordMaps } from 'notion-utils'
 import pMap from 'p-map'
 import pMemoize from 'p-memoize'
 
+import type { PaginationMeta } from './types'
 // Local modules
 import {
   defaultFallbackImage,
@@ -20,7 +21,6 @@ import {
 import { getTweetsMap } from './get-tweets'
 import { notion } from './notion-api'
 import { getPreviewImageMap } from './preview-images'
-import type { PaginationMeta } from './types'
 
 const getNavigationLinkPages = pMemoize(
   async (): Promise<ExtendedRecordMap[]> => {
