@@ -13,6 +13,7 @@ export interface PageError {
 
 export interface PaginationMeta {
   hasMore: boolean
+  hasPrevious?: boolean
   nextCursor?: string | null
   currentPage?: number
   totalCount?: number
@@ -24,7 +25,7 @@ export interface PageProps {
   pageId?: string
   error?: PageError
   paginationMeta?: PaginationMeta
-  cursor?: string | null
+  page?: number
 }
 
 export interface ExtendedTweetRecordMap extends ExtendedRecordMap {

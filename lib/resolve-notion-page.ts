@@ -11,7 +11,7 @@ export async function resolveNotionPage(
   domain: string,
   rawPageId?: string,
   paginationOptions?: {
-    cursor?: string
+    page?: number
     loadAll?: boolean
   }
 ) {
@@ -91,9 +91,13 @@ export async function resolveNotionPage(
 
     // Use pagination-aware function if pagination options are provided
     if (paginationOptions && site.enablePagination) {
+      const pageSize = site.pageSize || 10
+      const currentPage = paginationOptions.page || 1
+      const cursor = ((currentPage - 1) * pageSize).toString()
+
       const paginatedResult = await getPageWithPagination(pageId, {
-        cursor: paginationOptions.cursor,
-        pageSize: site.pageSize || 10,
+        cursor,
+        pageSize,
         loadAll: paginationOptions.loadAll !== undefined ? paginationOptions.loadAll : (site.defaultPageAll ?? false)
       })
 
@@ -102,8 +106,12 @@ export async function resolveNotionPage(
         site,
         recordMap: paginatedResult,
         pageId,
-        paginationMeta: paginatedResult.paginationMeta,
-        cursor: paginationOptions.cursor || null
+        paginationMeta: {
+          ...paginatedResult.paginationMeta,
+          currentPage,
+          hasPrevious: currentPage > 1
+        },
+        page: currentPage
       }
       return { ...props, ...(await acl.pageAcl(props)) }
     } else {

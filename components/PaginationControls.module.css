@@ -1,0 +1,87 @@
+.paginationControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border-top: 1px solid var(--notion-gray-light);
+}
+
+.pageInfo {
+  font-size: 0.9rem;
+  color: var(--notion-gray);
+  font-weight: 500;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--notion-gray-light);
+  border-radius: 6px;
+  background: var(--notion-white);
+  color: var(--notion-text);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.button:hover:not(.disabled) {
+  background: var(--notion-gray-light);
+  border-color: var(--notion-gray);
+  transform: translateY(-1px);
+}
+
+.button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: var(--notion-gray);
+}
+
+/* Dark mode support */
+.dark-mode .paginationControls {
+  border-top-color: var(--notion-gray-dark);
+}
+
+.dark-mode .button {
+  background: var(--notion-dark);
+  border-color: var(--notion-gray-dark);
+  color: var(--notion-text-dark);
+}
+
+.dark-mode .button:hover:not(.disabled) {
+  background: var(--notion-gray-dark);
+  border-color: var(--notion-gray);
+}
+
+.dark-mode .button.disabled {
+  color: var(--notion-gray);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .paginationControls {
+    margin: 1.5rem 0;
+    padding: 1rem;
+  }
+
+  .controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .button {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+  }
+}

@@ -24,11 +24,11 @@ import { useDarkMode } from '@/lib/use-dark-mode'
 
 import { Footer } from './Footer'
 import { Loading } from './Loading'
-import { LoadMoreButton } from './LoadMoreButton'
 import { NotionPageHeader } from './NotionPageHeader'
 import { Page404 } from './Page404'
 import { PageAside } from './PageAside'
 import { PageHead } from './PageHead'
+import { PaginationControls } from './PaginationControls'
 import styles from './styles.module.css'
 
 // -----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ export function NotionPage({
   error,
   pageId,
   paginationMeta,
-  cursor: _cursor
+  page
 }: types.PageProps) {
   const router = useRouter()
   const lite = useSearchParam('lite')
@@ -211,27 +211,25 @@ export function NotionPage({
     [block, recordMap, isBlogPost]
   )
 
-  // Add LoadMoreButton to footer if pagination is enabled and there's more content
-  const loadMoreButton = React.useMemo(() => {
-    if (!site?.enablePagination || !paginationMeta?.hasMore) return null
+  // Add PaginationControls to footer if pagination is enabled
+  const paginationControls = React.useMemo(() => {
+    if (!site?.enablePagination || !paginationMeta) return null
 
     return (
-      <LoadMoreButton
-        hasMore={paginationMeta.hasMore}
-        nextCursor={paginationMeta.nextCursor}
-        pageId={pageId}
-        // Note: For a complete implementation, you'd need to extract collectionId and collectionViewId
-        // from the recordMap. This is a simplified version.
+      <PaginationControls
+        currentPage={paginationMeta.currentPage || page || 1}
+        hasNext={paginationMeta.hasMore}
+        hasPrevious={paginationMeta.hasPrevious || false}
       />
     )
-  }, [paginationMeta, pageId, site?.enablePagination])
+  }, [paginationMeta, page, site?.enablePagination])
 
   const footer = React.useMemo(() => (
     <>
-      {loadMoreButton}
+      {paginationControls}
       <Footer />
     </>
-  ), [loadMoreButton])
+  ), [paginationControls])
 
   if (router.isFallback) {
     return <Loading />

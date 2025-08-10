@@ -5,12 +5,13 @@ import { domain } from '@/lib/config'
 import { resolveNotionPage } from '@/lib/resolve-notion-page'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { cursor, loadAll } = context.query
+  const { page, loadAll } = context.query
 
   try {
-    // Always pass pagination options to enable pagination by default
+    // Convert page number to pagination options
+    const pageNumber = page ? Number.parseInt(page as string, 10) : 1
     const paginationOptions = {
-      cursor: cursor as string,
+      page: pageNumber,
       loadAll: loadAll === 'true'
     }
 
