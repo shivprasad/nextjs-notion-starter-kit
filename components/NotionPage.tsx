@@ -22,13 +22,13 @@ import { getCanonicalPageUrl, mapPageUrl } from '@/lib/map-page-url'
 import { searchNotion } from '@/lib/search-notion'
 import { useDarkMode } from '@/lib/use-dark-mode'
 
+import { CollectionWithPagination } from './CollectionWithPagination'
 import { Footer } from './Footer'
 import { Loading } from './Loading'
 import { NotionPageHeader } from './NotionPageHeader'
 import { Page404 } from './Page404'
 import { PageAside } from './PageAside'
 import { PageHead } from './PageHead'
-import { PaginationControls } from './PaginationControls'
 import styles from './styles.module.css'
 
 // -----------------------------------------------------------------------------
@@ -75,11 +75,6 @@ const Code = dynamic(() =>
   })
 )
 
-const Collection = dynamic(() =>
-  import('react-notion-x/build/third-party/collection').then(
-    (m) => m.Collection
-  )
-)
 const Equation = dynamic(() =>
   import('react-notion-x/build/third-party/equation').then((m) => m.Equation)
 )
@@ -167,7 +162,14 @@ export function NotionPage({
       nextLegacyImage: Image,
       nextLink: Link,
       Code,
-      Collection,
+      Collection: (props) => (
+        <CollectionWithPagination
+          {...props}
+          paginationMeta={paginationMeta}
+          page={page}
+          enablePagination={site?.enablePagination}
+        />
+      ),
       Equation,
       Pdf,
       Modal,
@@ -177,7 +179,7 @@ export function NotionPage({
       propertyTextValue,
       propertyDateValue
     }),
-    []
+    [paginationMeta, page, site?.enablePagination]
   )
 
   // lite mode is for oembed
@@ -211,25 +213,7 @@ export function NotionPage({
     [block, recordMap, isBlogPost]
   )
 
-  // Add PaginationControls to footer if pagination is enabled
-  const paginationControls = React.useMemo(() => {
-    if (!site?.enablePagination || !paginationMeta) return null
-
-    return (
-      <PaginationControls
-        currentPage={paginationMeta.currentPage || page || 1}
-        hasNext={paginationMeta.hasMore}
-        hasPrevious={paginationMeta.hasPrevious || false}
-      />
-    )
-  }, [paginationMeta, page, site?.enablePagination])
-
-  const footer = React.useMemo(() => (
-    <>
-      {paginationControls}
-      <Footer />
-    </>
-  ), [paginationControls])
+  const footer = React.useMemo(() => <Footer />, [])
 
   if (router.isFallback) {
     return <Loading />
